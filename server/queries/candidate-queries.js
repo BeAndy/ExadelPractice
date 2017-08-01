@@ -20,13 +20,17 @@ function get(skip = 0, amount = 14, filter = {}) {
       query[i + j] = `${sent}candidate.${item} <= "${filter[item]}"`;
       return;
     }
-    filter[item].forEach((val, l) => {
-      if (l >= 1) {
-        sent = ' OR ';
-        j += 1;
+    query[i + j] = `${sent}candidate.${item} IN (`;
+    filter[item].forEach((val, l, arr) => {
+      j += 1;
+      if (l !== arr.length - 1) {
+        query[i + j] = `"${val}",`;
+        return;
       }
-      query[i + j] = `${sent}candidate.${item} = ${val}`;
+      query[i + j] = `"${val}"`;
     });
+    j += 1;
+    query[i + j] = ')';
   });
   return `SELECT candidate.id, candidate.ru_first_name, candidate.ru_second_name,
   candidate.eng_first_name, candidate.eng_second_name, location.city, candidate.contact_date,
